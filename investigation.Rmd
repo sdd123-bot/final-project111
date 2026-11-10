@@ -1,7 +1,7 @@
 ---
-title: "IDS investigation worksheet"
-author: "by Team-Name: User1, User2, User3, User4 & User5"
-date: "`r Sys.Date()`"
+title: "Deprivation and Patient Rates"
+author: "No.1: Chuqing Shi, Zimo Zhou, Shuchen Zhang"
+date: "`11.10`"
 output: html_document
 ---
 
@@ -25,9 +25,14 @@ library(tidyverse)
 
 ```{r load-data}
 # load your data 
+deprivation <- read_csv("data/deprivation.csv")
 
-
-
+deprivation <- deprivation %>%
+  filter(
+    Dataset == "SMR04",
+    HBR == "S92000003",
+    SIMD %in% 1:5
+  )
 
 ```
 
