@@ -1,9 +1,9 @@
 ---
-title: "Presentation title"
-subtitle: "Presentation subtitle (if any)"
-author: "Team name <br> Names of team members"
+title: "Deprivation and Patient Rates"
+subtitle: "Recovery of the Relationship between Deprivation and Patients Rates "
+author: "NO.1: Zimo Zhou, Chuqing Shi, Shuchen Zhang"
 institute: "University of Edinburgh"
-date: "`r Sys.Date()`"
+date: "11.10"
 output:
   xaringan::moon_reader:
     css: xaringan-themer.css
@@ -20,17 +20,16 @@ output:
 # Copy and paste the following code into your console to download and install
 # the `xaringan` package that contains all of the code which allows you 
 # to create presentation slides in Rmarkdown
-install.packages('xaringan')
+install.packages('xaringanthemer')
 ```
 
 
 ```{r load-packages, include = FALSE}
 # Add any additional packages you need to this chunk
 library(tidyverse)
-library(tidymodels)
-library(palmerpenguins)
 library(knitr)
 library(xaringanthemer)
+library(broom)
 ```
 
 ```{r setup, include=FALSE}
@@ -53,164 +52,381 @@ style_xaringan(
 
 class: center, middle
 
-## A statement of the overall goal / research question
+## Goal:Recovery of the relationship between deprivation and patients rates in Scotland(1997-2023)(A statement of the overall goal / research question)
 
 ---
 
 class: inverse, center, middle
 
-# Section title
+# Background(Importance),Method&Model,Result,Visualization,Distribution，Conclusion,Limitation(Section title)
 
 ---
 
-# Hello World
+#  the relationship between deprivation and patients rates in Scotland(1997-2023) (这一页的标题 Hello World
 
-- Click the `Knit` button to compile your presentation
+Our study investigates how deprivation links to the patients rates.
 
-- Make sure to commit and push all resulting files to your GitHub repo
+（- Click the `Knit` button to compile your presentation
+
+ - Make sure to commit and push all resulting files to your GitHub repo）
 
 ---
 
 class: inverse, middle, center
 
-# Using xaringan
+# Background (章节大标题 Using xaringan
+前人的研究空白
+如果发现贫困程度和精神病发病率有关系并且更穷苦的人发病率更高（经济压力--工作压力大--心理健康下降），可以让政府意识到它应该合理分配资源，而不是平均分配，有效降低精神疾病发病率
 
 ---
 
-# xaringan
+# Method&Model（xaringan
 
-- The presentation is created using the `xaringan` package
+Linear correlation：
+y=b0+b1*SIMD
+(b0代表什么，b1代表什么，SIMD代表什么，patients rates间接代表了发病数量，p value小于0.05--两者之间有显著性线性关联（H0：没有线性关系）：p大于0.05，不拒绝原假设（H0）--没有线性关系，p小于0.05，拒绝原假设--有线性关系）
 
-- Use `---` to separate slides and `--` for incremental builds
+ 
+#Result：
 
---
+Code+Function:
 
-- Like this
+```{r}
+b0 <- coef(model)[1]
+b1 <- coef(model)[2]
+
+cat(
+  "Predicted y =",
+  round(b0, 2),
+  ifelse(b1 < 0, "-", "+"),
+  abs(round(b1, 2)),
+  "* SIMD\n"
+)
+```
+
+
+
+
+p- value：
+```{r}
+# p-value for SIMD coefficient
+p <- summary(model)$coefficients["SIMD", "Pr(>|t|)"]
+print(p)
+```
 
 ---
 
-# Layouts
+# Visualization
 
-You can use plain text
+.pull-left[Linear：
+```{r}
+deprivation <- read_csv("data/deprivation.csv")
+plot_data <- deprivation %>%
+  filter(
+    Dataset == "SMR04",
+    HBR == "S92000003",
+    SIMD %in% 1:5,
+    !is.na(PatientsRates)
+  ) %>%
+  mutate(SIMD = as.numeric(SIMD))
+model <- lm(PatientsRates ~ SIMD, data = plot_data)
+intercept <- coef(model)[1]
+slope <- coef(model)[2]
+cat(
+  "Linear Regression Equation:\n",
+  "y = ", round(intercept, 2),
+  ifelse(slope < 0, " - ", " + "),
+  abs(round(slope, 2)), "x\n",
+  sep = ""
+)
+ggplot(plot_data,
+       aes(x = SIMD, y = PatientsRates)) +
 
-- or bullet points
+  geom_point(
+    aes(colour = factor(SIMD)),
+    alpha = 0.4,
+    size = 2
+  ) +
 
-.pull-left[
-or text in two columns $^*$
+  geom_smooth(
+    method = "lm",
+    formula = y ~ x,
+    se = FALSE,
+    colour = "black",
+    linewidth = 1.2
+  ) +
+
+  scale_colour_manual(
+    values = c(
+      "1" = "#E63946",
+      "2" = "#457B9D",
+      "3" = "#2A9D8F",
+      "4" = "#9B59B6",
+      "5" = "#F4A261"
+    ),
+    name = "SIMD"
+  ) +
+
+  scale_x_continuous(breaks = 1:5) +
+
+  labs(
+    title = "Linear Regression: SIMD and Mental Health Inpatient Rates",
+    subtitle = "Scotland, 1997/98–2023/24",
+    x = "SIMD (1 = Most Deprived, 5 = Least Deprived)",
+    y = "Patients per 100,000 Population"
+  ) +
+
+  theme_minimal()
+```
+
 ]
-.pull-right[
-- like
-- this
+.pull-right[分析趋势（根据可视化）：当SIMD变的时候 Patients rates是怎么变的
+
+
 ]
 
 .footnote[
-[*] And add footnotes
+[数据来源] And add footnotes
 ]
 
 ---
 
-# Code
+# Distribution
+可视化（boxplot）：
+```{r}
+library(tidyverse)
+deprivation <- read_csv("data/deprivation.csv")
+plot_data <- deprivation %>%
+  filter(
+    Dataset == "SMR04",
+    HBR == "S92000003",
+    SIMD %in% 1:5,
+    !is.na(PatientsRates)
+  ) %>%
+  mutate(SIMD = factor(SIMD))
+ggplot(plot_data, aes(x = PatientsRates)) +
 
-```{r boring-regression}
-# a boring regression
-model <- lm(dist ~ speed, data = cars)
-tidy(model)
-glance(model)
+  geom_histogram(
+    aes(
+      y = after_stat(density),
+      fill = SIMD
+    ),
+    bins = 8,
+    alpha = 0.4,
+    color = "white"
+  ) +
+
+  geom_density(
+    aes(color = SIMD),
+    linewidth = 1.2,
+    fill = NA
+  ) +
+
+  facet_wrap(
+    ~ SIMD,
+    ncol = 3
+  ) +
+
+  scale_fill_manual(
+    values = c(
+      "1" = "#E63946",
+      "2" = "#457B9D",
+      "3" = "#2A9D8F",
+      "4" = "#9B59B6",
+      "5" = "#F4A261"
+    )
+  ) +
+
+  scale_color_manual(
+    values = c(
+      "1" = "#E63946",
+      "2" = "#457B9D",
+      "3" = "#2A9D8F",
+      "4" = "#9B59B6",
+      "5" = "#F4A261"
+    )
+  ) +
+
+  labs(
+    title = "Distribution of Mental Health Inpatient Rates by SIMD",
+    subtitle = "Scotland, 1997/98–2023/24",
+    x = "Patients per 100,000 Population",
+    y = "Density"
+  ) +
+
+  theme_minimal() +
+
+  theme(
+    legend.position = "none"
+  )
+distribution_summary <- plot_data %>%
+  group_by(SIMD) %>%
+  summarise(
+    n = n(),
+    Mean = mean(PatientsRates),
+    Median = median(PatientsRates),
+    SD = sd(PatientsRates),
+    Q1 = quantile(PatientsRates, 0.25),
+    Q3 = quantile(PatientsRates, 0.75),
+    IQR = IQR(PatientsRates),
+    Min = min(PatientsRates),
+    Max = max(PatientsRates),
+    .groups = "drop"
+  )
+
+print(distribution_summary)
 ```
+
+（5个图）分析：关注的变量，interquartile，summary statistics（mean，median，standard divisual，左偏代表了什么：在SIMD为1的地区的patients rates集中在yyyy-yyyy
+
+```{r}
+distribution_summary <- plot_data %>%
+  group_by(SIMD) %>%
+  summarise(
+    n = n(),
+    Mean = mean(PatientsRates),
+    Median = median(PatientsRates),
+    SD = sd(PatientsRates),
+    Q1 = quantile(PatientsRates, 0.25),
+    Q3 = quantile(PatientsRates, 0.75),
+    IQR = IQR(PatientsRates),
+    Min = min(PatientsRates),
+    Max = max(PatientsRates),
+    .groups = "drop"
+  )
+
+print(distribution_summary)
+```
+
+
+#Conclusion
+
+
+
 
 ---
 
-# Plots
+# Other questions：随着时间推移，patients rates和 discharge rates是怎么变的
+
+图：
+分析：
 
 ```{r recode-species, echo = FALSE}
-# In this chunk I'm doing a bunch of analysis that I don't want to present 
-# in my slides. But I need the resulting data frame for a plot I want to present.
-iris_modified <- iris %>%
-  mutate(Species = fct_other(Species, keep = "setosa"))
+install.packages("tidyverse")
+library(tidyverse)
+
+library(tidyverse)
+
+mental_health <- read_csv("data/deprivation.csv")
+
+mental_health_clean <- mental_health %>%
+  select(
+    SIMD,
+    PatientsRates,
+    FinancialYear,
+    Dataset,
+    HBR
+  )
+
+plot_data_all <- mental_health_clean %>%
+  filter(
+    Dataset == "SMR04",
+    HBR == "S92000003",
+    SIMD %in% 1:5,
+    !is.na(PatientsRates)
+  )
+
+plot_data_trend <- plot_data_all %>%
+  group_by(FinancialYear, SIMD) %>%
+  summarise(
+    PatientsRates = mean(PatientsRates),
+    .groups = "drop"
+  )
+
+ggplot(plot_data_trend,
+       aes(x = FinancialYear,
+           y = PatientsRates,
+           color = factor(SIMD),
+           group = SIMD)) +
+  geom_line(linewidth = 1) +
+  scale_x_discrete(
+    breaks = c(
+      "1997/98",
+      "2002/03",
+      "2007/08",
+      "2012/13",
+      "2017/18",
+      "2022/23"
+    )
+  ) +
+  labs(
+    title = "Mental Health Inpatient Rates by Deprivation",
+    subtitle = "Scotland: Trends Over Time",
+    x = "Financial Year",
+    y = "Patients per 100,000 Population",
+    color = "SIMD Quintile"
+  ) +
+  theme_minimal()
 ```
 
 ```{r plot-iris, echo = FALSE}
-# Code hidden with echo = FALSE
-# Uses modified iris dataset from previous chunk
-# Play around with height and width until you're happy with the look
-ggplot(data = iris_modified, mapping = aes(x = Sepal.Width, y = Sepal.Length, color = Species)) +
-  geom_point() + 
-  theme_minimal() # theme options: https://ggplot2.tidyverse.org/reference/ggtheme.html
+install.packages("tidyverse")
+library(tidyverse)
+my_breaks <- c(
+  "1997/98",
+  "2002/03",
+  "2007/08",
+  "2012/13",
+  "2017/18",
+  "2022/23"
+)
+mean_data <- deprivation %>%
+   group_by(FinancialYear, SIMD) %>%
+   summarise(mean_rate = mean(DischargeRates, na.rm = TRUE), .groups = "drop")
+ggplot(mean_data, aes(x = FinancialYear, y = mean_rate, color = factor(SIMD), group = SIMD)) +
+  geom_line(linewidth = 1.2)+
+  scale_color_manual(                                      
+    values = c(
+       "1" = "#F8766D",  
+       "2" = "#A3A500", 
+       "3" = "#00BF7D",  
+       "4" = "#00B0F6",  
+       "5" = "#E76BF3",
+       "6" = "#F4A261"
+       ),
+     name = "SIMD") +
+     scale_x_discrete(breaks = my_breaks) +
+   labs(title="The Trend of Discharge Rates", subtitle="1997-2024", x="Financial Year", y="The Mean of Discharge Rate")+
+   theme_minimal()+
+   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
----
 
-## Plot and text
 
-.pull-left[
-- Some text
-- goes here
-]
-.pull-right[
-```{r warning=FALSE, out.width="100%", fig.width=4, echo=FALSE}
-# see how I changed out.width and fig.width from defaults
-# to make the figure bigger
-ggplot(penguins, aes(x = bill_length_mm, y = species, color = species)) +
-  geom_boxplot() +
-  theme_minimal()
-```
-]
-
----
-
-# Tables
-
-If you want to generate a table, make sure it is in the HTML format (instead of Markdown or other formats), e.g.,
-
-```{r iris-table, echo = FALSE}
-kable(head(iris), format = "html")
-```
-
----
-
-# Images
-
-```{r castle, echo = FALSE, out.width = "55%", fig.align = "center", fig.cap = "Image credit: Photo by Jörg Angeli on Unsplash."}
-include_graphics("img/edinburgh-castle.jpg")
-```
-
-Or you can also include a full page image. See next slide.
-
----
 
 
 class: inverse, center, middle
 background-image: url(img/edinburgh-castle.jpg)
 background-size: contain
----
 
-# Math Expressions
 
-You can write LaTeX math expressions inside a pair of dollar signs, e.g. &#36;\alpha+\beta$ renders $\alpha+\beta$. You can use the display style with double dollar signs:
 
-```
-$$\bar{X}=\frac{1}{n}\sum_{i=1}^nX_i$$
-```
 
-$$\bar{X}=\frac{1}{n}\sum_{i=1}^nX_i$$
+#我们研究的Limitations:
 
-Limitations:
+1.有别的因素影响了patients rates但是没有屏蔽
+2.数据只有1997-2023的
+3.只研究了线性的关系
 
-1. The source code of a LaTeX math expression must be in one line, unless it is inside a pair of double dollar signs, in which case the starting `$$` must appear in the very beginning of a line, followed immediately by a non-space character, and the ending `$$` must be at the end of a line, led by a non-space character;
 
-1. There should not be spaces after the opening `$` or before the closing `$`.
-
-1. Math does not work on the title slide (see [#61](https://github.com/yihui/xaringan/issues/61) for a workaround).
-
----
 
 # Feeling adventurous?
 
-- Want to find out more about `xaringan`? See https://slides.yihui.name/xaringan/#1.
+（- Want to find out more about `xaringan`? See https://slides.yihui.name/xaringan/#1.
 
 - You are welcome to use the default styling of the slides. In fact, that's what I expect majority of you will do. You will differentiate yourself with the content of your presentation.
 
 - But some of you might want to play around with slide styling. The 
 `xaringanthemer` provides some solutions for this that: https://pkg.garrickadenbuie.com/xaringanthemer.
 
-- And if you want more bells and whistles, there is also `xaringanExtra`: https://pkg.garrickadenbuie.com/xaringanExtra.
+- And if you want more bells and whistles, there is also `xaringanExtra`: https://pkg.garrickadenbuie.com/xaringanExtra.）

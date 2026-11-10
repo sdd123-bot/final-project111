@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Deprivation and Patient Rates</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="NO.1: Zimo Zhou, Chuqing Shi, Shuchen Zhang" />
+    <script src="libs/header-attrs-2.32/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Deprivation and Patient Rates
+]
+.subtitle[
+## Recovery of the Relationship between Deprivation and Patients Rates
+]
+.author[
+### NO.1: Zimo Zhou, Chuqing Shi, Shuchen Zhang
+]
+.institute[
+### University of Edinburgh
+]
+.date[
+### 11.10
+]
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+class: center, middle
+
+## Goal:Recovery of the relationship between deprivation and patients rates in Scotland(1997-2023)(A statement of the overall goal / research question)
+
+---
+
+class: inverse, center, middle
+
+# Background(Importance),Data,Method,Model,Result,Virtualisation,Conclusion,Limitation(Section title)
+
+---
+
+#  the relationship between deprivation and patients rates in Scotland(1997-2023) (这一页的标题 Hello World
+
+Our study investigates how deprivation links to the patients rates.
+
+（- Click the `Knit` button to compile your presentation
+
+ - Make sure to commit and push all resulting files to your GitHub repo）
+
+---
+
+class: inverse, middle, center
+
+# Background (章节大标题 Using xaringan
+前人的研究空白
+如果发现贫困程度和精神病发病率有关系并且更穷苦的人发病率更高（经济压力--工作压力大--心理健康下降），可以让政府意识到它应该合理分配资源，而不是平均分配，有效降低精神疾病发病率
+
+---
+
+# Method&amp;Model（xaringan
+
+ Linear correlation：k不等于0--有线性关系（k代表什么，b代表什么，SIMD代表什么，patients rates间接代表了发病数量，p value小于0.05--两者之间有显著性线性关联（H0：没有线性关系）：p大于0.05，不拒绝原假设（H0）--没有线性关系，p小于0.05，拒绝原假设--有线性关系）
+ 可视化：
+分析趋势（根据可视化）：当SIMD变的时候 Patients rates是怎么变的
+ (- The presentation is created using the `xaringan` package
+
+- Use `---` to separate slides and `--` for incremental builds)
+
+--
+
+- Like this）
+#Result：
+ Code+Function:
+ p- value：
+---
+
+# Visualisation（Layouts）
+（You can use plain text
+
+- or bullet points）
+
+.pull-left[linear：
+
+
+]
+.pull-right[分析趋势（根据可视化）：当SIMD变的时候 Patients rates是怎么变的
+
+
+]
+Boxplot：算mean，S，IQR，median，mode；分析分布 patients rates最高集中在哪个贫困度里面
+.footnote[
+[数据来源] And add footnotes
+]
+
+---
+
+# Distribution
+可视化：
+（5个图）分析：关注的变量，interquartile，summary statistics（mean，median，standard divisual，左偏代表了什么：在SIMD为1的地区的patients rates集中在yyyy-yyyy
+
+#Code
+
+
+``` r
+# a boring regression
+model &lt;- lm(dist ~ speed, data = cars)
+tidy(model)
+```
+
+```
+## # A tibble: 2 × 5
+##   term        estimate std.error statistic  p.value
+##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+## 1 (Intercept)   -17.6      6.76      -2.60 1.23e- 2
+## 2 speed           3.93     0.416      9.46 1.49e-12
+```
+
+``` r
+glance(model)
+```
+
+```
+## # A tibble: 1 × 12
+##   r.squared adj.r.squared sigma statistic  p.value    df logLik   AIC   BIC
+##       &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1     0.651         0.644  15.4      89.6 1.49e-12     1  -207.  419.  425.
+## # ℹ 3 more variables: deviance &lt;dbl&gt;, df.residual &lt;int&gt;, nobs &lt;int&gt;
+```
+
+---
+
+# Other questions：随着时间推移，patients rates和 discharge rates是怎么变的
+
+图：
+分析：
+
+
+
+&lt;img src="presentation_files/figure-html/plot-iris-1.png" alt="" width="80%" /&gt;
+
+
+
+
+
+class: inverse, center, middle
+background-image: url(img/edinburgh-castle.jpg)
+background-size: contain
+
+
+
+
+#我们研究的Limitations:
+
+1.有别的因素影响了patients rates但是没有屏蔽
+2.数据只有1997-2023的
+3.只研究了线性的关系
+
+
+
+# Feeling adventurous?
+
+（- Want to find out more about `xaringan`? See https://slides.yihui.name/xaringan/#1.
+
+- You are welcome to use the default styling of the slides. In fact, that's what I expect majority of you will do. You will differentiate yourself with the content of your presentation.
+
+- But some of you might want to play around with slide styling. The 
+`xaringanthemer` provides some solutions for this that: https://pkg.garrickadenbuie.com/xaringanthemer.
+
+- And if you want more bells and whistles, there is also `xaringanExtra`: https://pkg.garrickadenbuie.com/xaringanExtra.）
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "ratio": "16:9",
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
