@@ -104,7 +104,7 @@ cat(
 )
 ```
 
-
+结论：
 
 
 p- value：
@@ -113,7 +113,7 @@ p- value：
 p <- summary(model)$coefficients["SIMD", "Pr(>|t|)"]
 print(p)
 ```
-
+结论：
 ---
 
 # Visualization
@@ -277,7 +277,7 @@ distribution_summary <- plot_data %>%
 print(distribution_summary)
 ```
 
-（5个图）分析：关注的变量，interquartile，summary statistics（mean，median，standard divisual，左偏代表了什么：在SIMD为1的地区的patients rates集中在yyyy-yyyy
+（5个图）分析：关注的变量，interquartile，summary statistics（mean，median，standard divisual
 
 ```{r}
 distribution_summary <- plot_data %>%
@@ -297,11 +297,15 @@ distribution_summary <- plot_data %>%
 
 print(distribution_summary)
 ```
+左偏代表了什么：在SIMD为1的地区的patients rates集中在yyyy-yyyy
 
+---
 
 #Conclusion
 
-
+1.correlation的function/可视化：截距和斜率说明了什么；线性关系
+2.p-value：线性相关（强/弱）；非线性相关（强/弱）
+3.distribution：分布情况（left/right/symmetric）；mean，median，standard，IQR；左偏代表了什么
 
 
 ---
@@ -309,7 +313,7 @@ print(distribution_summary)
 # Other questions：随着时间推移，patients rates和 discharge rates是怎么变的
 
 图：
-分析：
+
 
 ```{r recode-species, echo = FALSE}
 install.packages("tidyverse")
@@ -368,6 +372,7 @@ ggplot(plot_data_trend,
   ) +
   theme_minimal()
 ```
+分析：
 
 ```{r plot-iris, echo = FALSE}
 install.packages("tidyverse")
@@ -400,6 +405,7 @@ ggplot(mean_data, aes(x = FinancialYear, y = mean_rate, color = factor(SIMD), gr
    theme_minimal()+
    theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+分析：
 
 
 
@@ -409,7 +415,7 @@ class: inverse, center, middle
 background-image: url(img/edinburgh-castle.jpg)
 background-size: contain
 
-
+---
 
 
 #我们研究的Limitations:
@@ -418,7 +424,7 @@ background-size: contain
 2.数据只有1997-2023的
 3.只研究了线性的关系
 
-
+---
 
 # Feeling adventurous?
 
