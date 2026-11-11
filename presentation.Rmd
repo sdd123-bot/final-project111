@@ -20,7 +20,7 @@ output:
 # Copy and paste the following code into your console to download and install
 # the `xaringan` package that contains all of the code which allows you 
 # to create presentation slides in Rmarkdown
-install.packages('xaringanthemer')
+install.packages(c("xaringanthemer","xaringan"))
 ```
 
 
