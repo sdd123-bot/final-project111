@@ -92,15 +92,26 @@ y=b0+b1*SIMD
 Code+Function:
 
 ```{r}
+library(tidyverse)
+deprivation <- read_csv("data/deprivation.csv")
+plot_data <- deprivation %>%
+  filter(
+    Dataset == "SMR04",
+    HBR == "S92000003",
+    SIMD %in% 1:5,
+    !is.na(PatientsRates)
+  ) %>%
+  mutate(SIMD = as.numeric(as.character(SIMD)))
+model <- lm(PatientsRates ~ SIMD, data = plot_data)
 b0 <- coef(model)[1]
 b1 <- coef(model)[2]
-
 cat(
-  "Predicted y =",
+  "Predicted y = ",
   round(b0, 2),
-  ifelse(b1 < 0, "-", "+"),
+  ifelse(b1 < 0, " - ", " + "),
   abs(round(b1, 2)),
-  "* SIMD\n"
+  " * SIMD\n",
+  sep = ""
 )
 ```
 
@@ -319,8 +330,6 @@ print(distribution_summary)
 install.packages("tidyverse")
 library(tidyverse)
 
-library(tidyverse)
-
 mental_health <- read_csv("data/deprivation.csv")
 
 mental_health_clean <- mental_health %>%
@@ -436,4 +445,4 @@ background-size: contain
 `xaringanthemer` provides some solutions for this that: https://pkg.garrickadenbuie.com/xaringanthemer.
 
 - And if you want more bells and whistles, there is also `xaringanExtra`: https://pkg.garrickadenbuie.com/xaringanExtra.）
-...
+
