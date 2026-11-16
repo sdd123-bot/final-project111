@@ -1,6 +1,6 @@
 ---
-title: "Deprivation and Patient Rates"
-subtitle: "Recovery of the Relationship between Deprivation and Patients Rates "
+title: "The Factors That Influence the Patients Rates"
+subtitle: "Recovery of the Relationship between Sex, Age, Deprivation，Discharge Rates and Patients Rates "
 author: "NO.1: Zimo Zhou, Chuqing Shi, Shuchen Zhang"
 institute: "University of Edinburgh"
 date: "11.10"
@@ -50,399 +50,86 @@ style_xaringan(
 )
 ```
 
+```{r}
+
+#tidy data
+
+
+```
+
 class: center, middle
 
-## Goal:Recovery of the relationship between deprivation and patients rates in Scotland(1997-2023)(A statement of the overall goal / research question)
+## Goal:Investigating which factor can influence the patients rates
 
 ---
 
 class: inverse, center, middle
 
-# Background(Importance),Method&Model,Result,Visualization,Distribution，Conclusion,Limitation(Section title)
+# Introduction,Data overview,Exploratory Data Analysis,Methodology,Results,Conclusion
 
 ---
 
-#  the relationship between deprivation and patients rates in Scotland(1997-2023) (这一页的标题 Hello World
+#  Introduction 
 
-Our study investigates how deprivation links to the patients rates.
-
-（- Click the `Knit` button to compile your presentation
-
- - Make sure to commit and push all resulting files to your GitHub repo）
-
----
-
-class: inverse, middle, center
-
-# Background (章节大标题 Using xaringan
-前人的研究空白
-如果发现贫困程度和精神病发病率有关系并且更穷苦的人发病率更高（经济压力--工作压力大--心理健康下降），可以让政府意识到它应该合理分配资源，而不是平均分配，有效降低精神疾病发病率
-
----
-
-# Method&Model（xaringan
-
-Linear correlation：
-y=b0+b1*SIMD
-(b0代表什么，b1代表什么，SIMD代表什么，patients rates间接代表了发病数量，p value小于0.05--两者之间有显著性线性关联（H0：没有线性关系）：p大于0.05，不拒绝原假设（H0）--没有线性关系，p小于0.05，拒绝原假设--有线性关系）
-
- 
-#Result：
-
-Code+Function:
-
-```{r}
-library(tidyverse)
-deprivation <- read_csv("data/deprivation.csv")
-plot_data <- deprivation %>%
-  filter(
-    Dataset == "SMR04",
-    HBR == "S92000003",
-    SIMD %in% 1:5,
-    !is.na(PatientsRates)
-  ) %>%
-  mutate(SIMD = as.numeric(as.character(SIMD)))
-model <- lm(PatientsRates ~ SIMD, data = plot_data)
-b0 <- coef(model)[1]
-b1 <- coef(model)[2]
-cat(
-  "Predicted y = ",
-  round(b0, 2),
-  ifelse(b1 < 0, " - ", " + "),
-  abs(round(b1, 2)),
-  " * SIMD\n",
-  sep = ""
-)
-```
-
-结论：
-
-
-p- value：
-```{r}
-# p-value for SIMD coefficient
-p <- summary(model)$coefficients["SIMD", "Pr(>|t|)"]
-print(p)
-```
-结论：
----
-
-# Visualization
-
-.pull-left[Linear：
-```{r}
-deprivation <- read_csv("data/deprivation.csv")
-plot_data <- deprivation %>%
-  filter(
-    Dataset == "SMR04",
-    HBR == "S92000003",
-    SIMD %in% 1:5,
-    !is.na(PatientsRates)
-  ) %>%
-  mutate(SIMD = as.numeric(SIMD))
-model <- lm(PatientsRates ~ SIMD, data = plot_data)
-intercept <- coef(model)[1]
-slope <- coef(model)[2]
-cat(
-  "Linear Regression Equation:\n",
-  "y = ", round(intercept, 2),
-  ifelse(slope < 0, " - ", " + "),
-  abs(round(slope, 2)), "x\n",
-  sep = ""
-)
-ggplot(plot_data,
-       aes(x = SIMD, y = PatientsRates)) +
-
-  geom_point(
-    aes(colour = factor(SIMD)),
-    alpha = 0.4,
-    size = 2
-  ) +
-
-  geom_smooth(
-    method = "lm",
-    formula = y ~ x,
-    se = FALSE,
-    colour = "black",
-    linewidth = 1.2
-  ) +
-
-  scale_colour_manual(
-    values = c(
-      "1" = "#E63946",
-      "2" = "#457B9D",
-      "3" = "#2A9D8F",
-      "4" = "#9B59B6",
-      "5" = "#F4A261"
-    ),
-    name = "SIMD"
-  ) +
-
-  scale_x_continuous(breaks = 1:5) +
-
-  labs(
-    title = "Linear Regression: SIMD and Mental Health Inpatient Rates",
-    subtitle = "Scotland, 1997/98–2023/24",
-    x = "SIMD (1 = Most Deprived, 5 = Least Deprived)",
-    y = "Patients per 100,000 Population"
-  ) +
-
-  theme_minimal()
-```
-
-]
-.pull-right[分析趋势（根据可视化）：当SIMD变的时候 Patients rates是怎么变的
-
-
-]
-
-.footnote[
-[数据来源] And add footnotes
-]
-
----
-
-# Distribution
-可视化（boxplot）：
-```{r}
-library(tidyverse)
-deprivation <- read_csv("data/deprivation.csv")
-plot_data <- deprivation %>%
-  filter(
-    Dataset == "SMR04",
-    HBR == "S92000003",
-    SIMD %in% 1:5,
-    !is.na(PatientsRates)
-  ) %>%
-  mutate(SIMD = factor(SIMD))
-ggplot(plot_data, aes(x = PatientsRates)) +
-
-  geom_histogram(
-    aes(
-      y = after_stat(density),
-      fill = SIMD
-    ),
-    bins = 8,
-    alpha = 0.4,
-    color = "white"
-  ) +
-
-  geom_density(
-    aes(color = SIMD),
-    linewidth = 1.2,
-    fill = NA
-  ) +
-
-  facet_wrap(
-    ~ SIMD,
-    ncol = 3
-  ) +
-
-  scale_fill_manual(
-    values = c(
-      "1" = "#E63946",
-      "2" = "#457B9D",
-      "3" = "#2A9D8F",
-      "4" = "#9B59B6",
-      "5" = "#F4A261"
-    )
-  ) +
-
-  scale_color_manual(
-    values = c(
-      "1" = "#E63946",
-      "2" = "#457B9D",
-      "3" = "#2A9D8F",
-      "4" = "#9B59B6",
-      "5" = "#F4A261"
-    )
-  ) +
-
-  labs(
-    title = "Distribution of Mental Health Inpatient Rates by SIMD",
-    subtitle = "Scotland, 1997/98–2023/24",
-    x = "Patients per 100,000 Population",
-    y = "Density"
-  ) +
-
-  theme_minimal() +
-
-  theme(
-    legend.position = "none"
-  )
-distribution_summary <- plot_data %>%
-  group_by(SIMD) %>%
-  summarise(
-    n = n(),
-    Mean = mean(PatientsRates),
-    Median = median(PatientsRates),
-    SD = sd(PatientsRates),
-    Q1 = quantile(PatientsRates, 0.25),
-    Q3 = quantile(PatientsRates, 0.75),
-    IQR = IQR(PatientsRates),
-    Min = min(PatientsRates),
-    Max = max(PatientsRates),
-    .groups = "drop"
-  )
-
-print(distribution_summary)
-```
-
-（5个图）分析：关注的变量，interquartile，summary statistics（mean，median，standard divisual
-
-```{r}
-distribution_summary <- plot_data %>%
-  group_by(SIMD) %>%
-  summarise(
-    n = n(),
-    Mean = mean(PatientsRates),
-    Median = median(PatientsRates),
-    SD = sd(PatientsRates),
-    Q1 = quantile(PatientsRates, 0.25),
-    Q3 = quantile(PatientsRates, 0.75),
-    IQR = IQR(PatientsRates),
-    Min = min(PatientsRates),
-    Max = max(PatientsRates),
-    .groups = "drop"
-  )
-
-print(distribution_summary)
-```
-左偏代表了什么：在SIMD为1的地区的patients rates集中在yyyy-yyyy
-
----
-
-#Conclusion
-
-1.correlation的function/可视化：截距和斜率说明了什么；线性关系
-2.p-value：线性相关（强/弱）；非线性相关（强/弱）
-3.distribution：分布情况（left/right/symmetric）；mean，median，standard，IQR；左偏代表了什么
+通过研究影响Patients rates的因素，可以帮助苏格兰政府有针对性地对精神病潜在患者进行干预（如：潜在患者的性别，年龄，贫困程度等），减少精神病发病率。
 
 
 ---
 
-# Other questions：随着时间推移，patients rates和 discharge rates是怎么变的
 
-图：
-
-
-```{r recode-species, echo = FALSE}
-install.packages("tidyverse")
-library(tidyverse)
-
-mental_health <- read_csv("data/deprivation.csv")
-
-mental_health_clean <- mental_health %>%
-  select(
-    SIMD,
-    PatientsRates,
-    FinancialYear,
-    Dataset,
-    HBR
-  )
-
-plot_data_all <- mental_health_clean %>%
-  filter(
-    Dataset == "SMR04",
-    HBR == "S92000003",
-    SIMD %in% 1:5,
-    !is.na(PatientsRates)
-  )
-
-plot_data_trend <- plot_data_all %>%
-  group_by(FinancialYear, SIMD) %>%
-  summarise(
-    PatientsRates = mean(PatientsRates),
-    .groups = "drop"
-  )
-
-ggplot(plot_data_trend,
-       aes(x = FinancialYear,
-           y = PatientsRates,
-           color = factor(SIMD),
-           group = SIMD)) +
-  geom_line(linewidth = 1) +
-  scale_x_discrete(
-    breaks = c(
-      "1997/98",
-      "2002/03",
-      "2007/08",
-      "2012/13",
-      "2017/18",
-      "2022/23"
-    )
-  ) +
-  labs(
-    title = "Mental Health Inpatient Rates by Deprivation",
-    subtitle = "Scotland: Trends Over Time",
-    x = "Financial Year",
-    y = "Patients per 100,000 Population",
-    color = "SIMD Quintile"
-  ) +
-  theme_minimal()
-```
-分析：
-
-```{r plot-iris, echo = FALSE}
-install.packages("tidyverse")
-library(tidyverse)
-my_breaks <- c(
-  "1997/98",
-  "2002/03",
-  "2007/08",
-  "2012/13",
-  "2017/18",
-  "2022/23"
-)
-mean_data <- deprivation %>%
-   group_by(FinancialYear, SIMD) %>%
-   summarise(mean_rate = mean(DischargeRates, na.rm = TRUE), .groups = "drop")
-ggplot(mean_data, aes(x = FinancialYear, y = mean_rate, color = factor(SIMD), group = SIMD)) +
-  geom_line(linewidth = 1.2)+
-  scale_color_manual(                                      
-    values = c(
-       "1" = "#F8766D",  
-       "2" = "#A3A500", 
-       "3" = "#00BF7D",  
-       "4" = "#00B0F6",  
-       "5" = "#E76BF3",
-       "6" = "#F4A261"
-       ),
-     name = "SIMD") +
-     scale_x_discrete(breaks = my_breaks) +
-   labs(title="The Trend of Discharge Rates", subtitle="1997-2024", x="Financial Year", y="The Mean of Discharge Rate")+
-   theme_minimal()+
-   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-```
-分析：
+# Data Overview
+Variable   Type   Description
 
 
 
 
-
-class: inverse, center, middle
-background-image: url(img/edinburgh-castle.jpg)
-background-size: contain
 
 ---
 
-
-#我们研究的Limitations:
-
-1.有别的因素影响了patients rates但是没有屏蔽
-2.数据只有1997-2023的
-3.只研究了线性的关系
+# Exploratory Data Analysis
+1.Visualization:(各个factor和PR之间的关系---- box plot和scatter)
+2.Analysis：通过表格展现每一个变量与PR间的mean，median，IQR，min,max,N
+3.Conclusion:
+*Skewness
+*IQR/min/max:
+*为regression做准备：
+*针对散点图：看趋势（在散点上加线）
+4.Correlation Matrix between Variables：
 
 ---
 
-# Feeling adventurous?
+#Methodology：
+1.Regression Model:
+$$
+\text{patientrates}_t=\alpha+\beta_1 \cdot \text{SIMD}_t+\beta_2\cdot\text{dischargerates}_t+\beta_3\cdot\text{age}_t+\beta_4\cdot\text{sex}_t
+$$
+2.解释系数：
+3.correlation表格+error term
+4.算p-value：在表格的correlation旁边标注*
+5.Model Checking：
+*残差图
+*算R方
+6.Reduced Model:
+*
+*Correlation表格+error term+p-value+model checking
 
-（- Want to find out more about `xaringan`? See https://slides.yihui.name/xaringan/#1.
 
-- You are welcome to use the default styling of the slides. In fact, that's what I expect majority of you will do. You will differentiate yourself with the content of your presentation.
+---
 
-- But some of you might want to play around with slide styling. The 
-`xaringanthemer` provides some solutions for this that: https://pkg.garrickadenbuie.com/xaringanthemer.
+# Results
 
-- And if you want more bells and whistles, there is also `xaringanExtra`: https://pkg.garrickadenbuie.com/xaringanExtra.）
+1.是否是statistically significant(p-value)
+2.correlation的意义（针对每一个变量）
+
+
+---
+#Conclusion：
+1.Summary：哪些因素与PR有关 是什么关系 政府可以根据这个多加关注符合这些特征的这类人群
+2.Limitation：
+*Data年份不多
+*其他影响因素没考虑进去
+
+
+
+
 
