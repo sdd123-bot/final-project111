@@ -49,7 +49,7 @@ class: center, middle
 
 class: inverse, center, middle
 
-# Background(Importance),Data,Method,Model,Result,Virtualisation,Conclusion,Limitation(Section title)
+# Background(Importance),Method&amp;Model,Result,Visualization,Distribution，Conclusion,Limitation(Section title)
 
 ---
 
@@ -73,35 +73,169 @@ class: inverse, middle, center
 
 # Method&amp;Model（xaringan
 
- Linear correlation：k不等于0--有线性关系（k代表什么，b代表什么，SIMD代表什么，patients rates间接代表了发病数量，p value小于0.05--两者之间有显著性线性关联（H0：没有线性关系）：p大于0.05，不拒绝原假设（H0）--没有线性关系，p小于0.05，拒绝原假设--有线性关系）
- 可视化：
-分析趋势（根据可视化）：当SIMD变的时候 Patients rates是怎么变的
- (- The presentation is created using the `xaringan` package
+Linear correlation：
+y=b0+b1*SIMD
+(b0代表什么，b1代表什么，SIMD代表什么，patients rates间接代表了发病数量，p value小于0.05--两者之间有显著性线性关联（H0：没有线性关系）：p大于0.05，不拒绝原假设（H0）--没有线性关系，p小于0.05，拒绝原假设--有线性关系）
 
-- Use `---` to separate slides and `--` for incremental builds)
-
---
-
-- Like this）
+ 
 #Result：
- Code+Function:
- p- value：
+
+Code+Function:
+
+
+``` r
+library(tidyverse)
+deprivation &lt;- read_csv("data/deprivation.csv")
+```
+
+```
+## Rows: 6075 Columns: 14
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr (7): FinancialYear, HBR, HBRQF, Dataset, DatasetQF, HospitalResidentsCou...
+## dbl (7): SIMD, DischargeCount, DischargeRates, PatientsCount, PatientsRates,...
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
+
+``` r
+plot_data &lt;- deprivation %&gt;%
+  filter(
+    Dataset == "SMR04",
+    HBR == "S92000003",
+    SIMD %in% 1:5,
+    !is.na(PatientsRates)
+  ) %&gt;%
+  mutate(SIMD = as.numeric(as.character(SIMD)))
+model &lt;- lm(PatientsRates ~ SIMD, data = plot_data)
+b0 &lt;- coef(model)[1]
+b1 &lt;- coef(model)[2]
+cat(
+  "Predicted y = ",
+  round(b0, 2),
+  ifelse(b1 &lt; 0, " - ", " + "),
+  abs(round(b1, 2)),
+  " * SIMD\n",
+  sep = ""
+)
+```
+
+```
+## Predicted y = 573.82 - 86.67 * SIMD
+```
+
+
+
+
+p- value：
+
+``` r
+# p-value for SIMD coefficient
+p &lt;- summary(model)$coefficients["SIMD", "Pr(&gt;|t|)"]
+print(p)
+```
+
+```
+## [1] 3.220616e-40
+```
+
 ---
 
-# Visualisation（Layouts）
-（You can use plain text
+# Visualization
 
-- or bullet points）
+.pull-left[Linear：
 
-.pull-left[linear：
+``` r
+deprivation &lt;- read_csv("data/deprivation.csv")
+```
 
+```
+## Rows: 6075 Columns: 14
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr (7): FinancialYear, HBR, HBRQF, Dataset, DatasetQF, HospitalResidentsCou...
+## dbl (7): SIMD, DischargeCount, DischargeRates, PatientsCount, PatientsRates,...
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
+
+``` r
+plot_data &lt;- deprivation %&gt;%
+  filter(
+    Dataset == "SMR04",
+    HBR == "S92000003",
+    SIMD %in% 1:5,
+    !is.na(PatientsRates)
+  ) %&gt;%
+  mutate(SIMD = as.numeric(SIMD))
+model &lt;- lm(PatientsRates ~ SIMD, data = plot_data)
+intercept &lt;- coef(model)[1]
+slope &lt;- coef(model)[2]
+cat(
+  "Linear Regression Equation:\n",
+  "y = ", round(intercept, 2),
+  ifelse(slope &lt; 0, " - ", " + "),
+  abs(round(slope, 2)), "x\n",
+  sep = ""
+)
+```
+
+```
+## Linear Regression Equation:
+## y = 573.82 - 86.67x
+```
+
+``` r
+ggplot(plot_data,
+       aes(x = SIMD, y = PatientsRates)) +
+
+  geom_point(
+    aes(colour = factor(SIMD)),
+    alpha = 0.4,
+    size = 2
+  ) +
+
+  geom_smooth(
+    method = "lm",
+    formula = y ~ x,
+    se = FALSE,
+    colour = "black",
+    linewidth = 1.2
+  ) +
+
+  scale_colour_manual(
+    values = c(
+      "1" = "#E63946",
+      "2" = "#457B9D",
+      "3" = "#2A9D8F",
+      "4" = "#9B59B6",
+      "5" = "#F4A261"
+    ),
+    name = "SIMD"
+  ) +
+
+  scale_x_continuous(breaks = 1:5) +
+
+  labs(
+    title = "Linear Regression: SIMD and Mental Health Inpatient Rates",
+    subtitle = "Scotland, 1997/98–2023/24",
+    x = "SIMD (1 = Most Deprived, 5 = Least Deprived)",
+    y = "Patients per 100,000 Population"
+  ) +
+
+  theme_minimal()
+```
+
+&lt;img src="presentation_files/figure-html/unnamed-chunk-4-1.png" alt="" width="80%" /&gt;
 
 ]
 .pull-right[分析趋势（根据可视化）：当SIMD变的时候 Patients rates是怎么变的
 
 
 ]
-Boxplot：算mean，S，IQR，median，mode；分析分布 patients rates最高集中在哪个贫困度里面
+
 .footnote[
 [数据来源] And add footnotes
 ]
@@ -109,37 +243,160 @@ Boxplot：算mean，S，IQR，median，mode；分析分布 patients rates最高�
 ---
 
 # Distribution
-可视化：
+可视化（boxplot）：
+
+``` r
+library(tidyverse)
+deprivation &lt;- read_csv("data/deprivation.csv")
+```
+
+```
+## Rows: 6075 Columns: 14
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr (7): FinancialYear, HBR, HBRQF, Dataset, DatasetQF, HospitalResidentsCou...
+## dbl (7): SIMD, DischargeCount, DischargeRates, PatientsCount, PatientsRates,...
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
+
+``` r
+plot_data &lt;- deprivation %&gt;%
+  filter(
+    Dataset == "SMR04",
+    HBR == "S92000003",
+    SIMD %in% 1:5,
+    !is.na(PatientsRates)
+  ) %&gt;%
+  mutate(SIMD = factor(SIMD))
+ggplot(plot_data, aes(x = PatientsRates)) +
+
+  geom_histogram(
+    aes(
+      y = after_stat(density),
+      fill = SIMD
+    ),
+    bins = 8,
+    alpha = 0.4,
+    color = "white"
+  ) +
+
+  geom_density(
+    aes(color = SIMD),
+    linewidth = 1.2,
+    fill = NA
+  ) +
+
+  facet_wrap(
+    ~ SIMD,
+    ncol = 3
+  ) +
+
+  scale_fill_manual(
+    values = c(
+      "1" = "#E63946",
+      "2" = "#457B9D",
+      "3" = "#2A9D8F",
+      "4" = "#9B59B6",
+      "5" = "#F4A261"
+    )
+  ) +
+
+  scale_color_manual(
+    values = c(
+      "1" = "#E63946",
+      "2" = "#457B9D",
+      "3" = "#2A9D8F",
+      "4" = "#9B59B6",
+      "5" = "#F4A261"
+    )
+  ) +
+
+  labs(
+    title = "Distribution of Mental Health Inpatient Rates by SIMD",
+    subtitle = "Scotland, 1997/98–2023/24",
+    x = "Patients per 100,000 Population",
+    y = "Density"
+  ) +
+
+  theme_minimal() +
+
+  theme(
+    legend.position = "none"
+  )
+```
+
+&lt;img src="presentation_files/figure-html/unnamed-chunk-5-1.png" alt="" width="80%" /&gt;
+
+``` r
+distribution_summary &lt;- plot_data %&gt;%
+  group_by(SIMD) %&gt;%
+  summarise(
+    n = n(),
+    Mean = mean(PatientsRates),
+    Median = median(PatientsRates),
+    SD = sd(PatientsRates),
+    Q1 = quantile(PatientsRates, 0.25),
+    Q3 = quantile(PatientsRates, 0.75),
+    IQR = IQR(PatientsRates),
+    Min = min(PatientsRates),
+    Max = max(PatientsRates),
+    .groups = "drop"
+  )
+
+print(distribution_summary)
+```
+
+```
+## # A tibble: 5 × 10
+##   SIMD      n  Mean Median    SD    Q1    Q3   IQR   Min   Max
+##   &lt;fct&gt; &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 1        27  516.   483. 102.   444.  618. 174.   363.  674.
+## 2 2        27  383.   363.  80.1  317.  462. 145.   269.  513.
+## 3 3        27  286.   266.  66.2  240.  349. 109.   183.  392.
+## 4 4        27  221.   205.  54.1  177.  274.  97.0  142.  312.
+## 5 5        27  163.   153.  37.3  135.  192.  57.3  116.  241.
+```
+
 （5个图）分析：关注的变量，interquartile，summary statistics（mean，median，standard divisual，左偏代表了什么：在SIMD为1的地区的patients rates集中在yyyy-yyyy
 
-#Code
-
 
 ``` r
-# a boring regression
-model &lt;- lm(dist ~ speed, data = cars)
-tidy(model)
+distribution_summary &lt;- plot_data %&gt;%
+  group_by(SIMD) %&gt;%
+  summarise(
+    n = n(),
+    Mean = mean(PatientsRates),
+    Median = median(PatientsRates),
+    SD = sd(PatientsRates),
+    Q1 = quantile(PatientsRates, 0.25),
+    Q3 = quantile(PatientsRates, 0.75),
+    IQR = IQR(PatientsRates),
+    Min = min(PatientsRates),
+    Max = max(PatientsRates),
+    .groups = "drop"
+  )
+
+print(distribution_summary)
 ```
 
 ```
-## # A tibble: 2 × 5
-##   term        estimate std.error statistic  p.value
-##   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-## 1 (Intercept)   -17.6      6.76      -2.60 1.23e- 2
-## 2 speed           3.93     0.416      9.46 1.49e-12
+## # A tibble: 5 × 10
+##   SIMD      n  Mean Median    SD    Q1    Q3   IQR   Min   Max
+##   &lt;fct&gt; &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+## 1 1        27  516.   483. 102.   444.  618. 174.   363.  674.
+## 2 2        27  383.   363.  80.1  317.  462. 145.   269.  513.
+## 3 3        27  286.   266.  66.2  240.  349. 109.   183.  392.
+## 4 4        27  221.   205.  54.1  177.  274.  97.0  142.  312.
+## 5 5        27  163.   153.  37.3  135.  192.  57.3  116.  241.
 ```
 
-``` r
-glance(model)
-```
 
-```
-## # A tibble: 1 × 12
-##   r.squared adj.r.squared sigma statistic  p.value    df logLik   AIC   BIC
-##       &lt;dbl&gt;         &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-## 1     0.651         0.644  15.4      89.6 1.49e-12     1  -207.  419.  425.
-## # ℹ 3 more variables: deviance &lt;dbl&gt;, df.residual &lt;int&gt;, nobs &lt;int&gt;
-```
+#Conclusion
+
+
+
 
 ---
 
@@ -149,6 +406,27 @@ glance(model)
 分析：
 
 
+```
+## Warning: package 'tidyverse' is in use and will not be installed
+```
+
+```
+## Rows: 6075 Columns: 14
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr (7): FinancialYear, HBR, HBRQF, Dataset, DatasetQF, HospitalResidentsCou...
+## dbl (7): SIMD, DischargeCount, DischargeRates, PatientsCount, PatientsRates,...
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
+
+&lt;img src="presentation_files/figure-html/recode-species-1.png" alt="" width="80%" /&gt;
+
+
+```
+## Warning: package 'tidyverse' is in use and will not be installed
+```
 
 &lt;img src="presentation_files/figure-html/plot-iris-1.png" alt="" width="80%" /&gt;
 
@@ -181,6 +459,7 @@ background-size: contain
 `xaringanthemer` provides some solutions for this that: https://pkg.garrickadenbuie.com/xaringanthemer.
 
 - And if you want more bells and whistles, there is also `xaringanExtra`: https://pkg.garrickadenbuie.com/xaringanExtra.）
+。。。
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
