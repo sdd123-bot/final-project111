@@ -53,7 +53,11 @@ style_xaringan(
 ```{r}
 
 #tidy data
-
+merged_data <- dplyr::inner_join(
+  age.sex, 
+  deprivation, 
+  by = c("HBR", "FinancialYear") 
+)
 
 ```
 
@@ -78,8 +82,41 @@ class: inverse, center, middle
 
 
 # Data Overview
-Variable   Type   Description
 
+```{r}
+library(knitr)
+
+variable_table <- data.frame(
+  Variable = c(
+    "Sex",
+    "AgeGroup",
+    "DischargeRates",
+    "PatientsRates",
+    "SIMD"
+  ),
+  Type = c(
+    "Categorical",
+    "Categorical",
+    "Numeric",
+    "Numeric",
+    "Numeric"
+  ),
+  Description = c(
+    "The patient's sex, as recorded on admission.",
+    "Refers to the patient's age on admission. Ages have been arranged in five different groups.",
+    "The annual number of discharges relative to the size of the population, expressed per 100,000 population.",
+    "The annual number of patients relative to the size of the population, expressed per 100,000 population.",
+    "The Scottish Index of Multiple Deprivation (SIMD) identifies concentrations of multiple deprivation across Scotland. Data zones are arranged into five groups, from the most deprived (1) to the least deprived (5)."
+  )
+)
+
+knitr::kable(
+  variable_table,
+  format = "html",
+  col.names = c("Variable", "Type", "Description"),
+  align = "lll"
+)
+```
 
 
 
@@ -87,14 +124,154 @@ Variable   Type   Description
 ---
 
 # Exploratory Data Analysis
-1.Visualization:(各个factor和PR之间的关系---- box plot和scatter)
+1.Visualization:
+```{r}
+library(tidyverse)
+age_sex <- read_csv("age.sex.csv")
+deprivation <- read_csv("deprivation.csv")
+plot_deprivation <- deprivation %>%
+  filter(
+    Dataset == "SMR04",
+    HBR == "S92000003",
+    SIMD %in% 1:5,
+    is.finite(PatientsRates)
+  ) %>%
+  mutate(
+    SIMD = factor(SIMD, levels = 1:5)
+  )
+ggplot(plot_deprivation,
+       aes(x = SIMD,
+           y = PatientsRates,
+           fill = SIMD)) +
+  geom_boxplot(alpha = 0.7) +
+  scale_fill_manual(
+    values = c(
+      "1" = "#E63946",
+      "2" = "#457B9D",
+      "3" = "#2A9D8F",
+      "4" = "#9B59B6",
+      "5" = "#F4A261"
+    )
+  ) +
+  labs(
+    title = "Mental Health Inpatient Rates by SIMD",
+    subtitle = "Scotland",
+    x = "SIMD Quintile",
+    y = "Patients per 100,000 Population"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+```{r}
+library(tidyverse)
+
+age.sex <- read_csv("age.sex.csv")
+
+ggplot(age.sex,
+       aes(x = factor(Sex),
+           y = PatientsRates,
+           fill = factor(Sex))) +
+  geom_boxplot(alpha = 0.7, na.rm = TRUE) +
+  labs(
+    title = "Mental Health Inpatient Rates by Sex",
+    subtitle = "Comparison of Patient Rates Across Sex Groups",
+    x = "Sex",
+    y = "Patients per 100,000 Population"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+
+```{r}
+library(tidyverse)
+age.sex <- read_csv("age.sex.csv")
+age_plot <- age.sex %>%
+  filter(
+    !is.na(AgeGroup),
+    is.finite(PatientsRates)
+  ) %>%
+  mutate(
+    AgeGroup = factor(
+      AgeGroup,
+      levels = c(
+        "0-17 years",
+        "18-24 years",
+        "25-39 years",
+        "40-64 years",
+        "65plus years"
+      )
+    )
+  )
+
+# 3. Create boxplot
+ggplot(age_plot,
+       aes(x = AgeGroup,
+           y = PatientsRates,
+           fill = AgeGroup)) +
+  geom_boxplot(alpha = 0.7) +
+  labs(
+    title = "Mental Health Inpatient Rates by Age Group",
+    subtitle = "Comparison Across Age Groups",
+    x = "Age Group",
+    y = "Patients per 100,000 Population"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    axis.text.x = element_text(angle = 30, hjust = 1)
+  )
+```
+
+
+
+
+
 2.Analysis：通过表格展现每一个变量与PR间的mean，median，IQR，min,max,N
+
+
+
+
+
+
+```{r}
+library(tidyverse)
+age_sex <- read_csv("age.sex.csv")
+deprivation <- read_csv("deprivation.csv")
+ggplot(age.sex,
+       aes(x = DischargeRates,
+           y = PatientsRates)) +
+  geom_point(
+    color = "#457B9D",
+    size = 2.5,
+    alpha = 0.6
+  ) +
+  geom_smooth(
+    method = "lm",
+    formula = y ~ x,
+    color = "red",
+    se = FALSE
+  ) +
+  labs(
+    title = "Relationship Between Discharge Rates and Patient Rates",
+    x = "Discharges per 100,000 Population",
+    y = "Patients per 100,000 Population"
+  ) +
+  theme_minimal()
+```
+
+3.Analysis:scatter point:
+
 3.Conclusion:
 *Skewness
 *IQR/min/max:
 *为regression做准备：
 *针对散点图：看趋势（在散点上加线）
+
 4.Correlation Matrix between Variables：
+```{r}
+
+```
 
 ---
 
@@ -103,13 +280,104 @@ Variable   Type   Description
 $$
 \text{patientrates}_t=\alpha+\beta_1 \cdot \text{SIMD}_t+\beta_2\cdot\text{dischargerates}_t+\beta_3\cdot\text{age}_t+\beta_4\cdot\text{sex}_t
 $$
+```{r}
+data <- 
+
+```
+
+
+
 2.解释系数：
-3.correlation表格+error term
-4.算p-value：在表格的correlation旁边标注*
+埃尔法：
+贝塔：
+t：
+error term：
+
+3.correlation表格+error term：
+```{r}
+# 1. 加载包
+library(dplyr)
+library(broom)
+library(gt)
+merged_data <- inner_join(
+  age.sex, 
+  deprivation, 
+  by = c("HBR", "FinancialYear") 
+) %>%
+  rename(
+    PatientsRates = PatientsRates.x,
+    DischargeRates = DischargeRates.x,
+    AgeGroup = AgeGroup,
+    Sex = Sex
+  ) %>%
+  select(-ends_with(".y"))
+print(colnames(merged_data))
+model_full <- lm(PatientsRates ~ SIMD + DischargeRates + AgeGroup + Sex, 
+                 data = merged_data, 
+                 na.action = na.omit)
+print(names(coef(model_full)))
+model_table <- tidy(model_full) %>%
+  mutate(
+    p_value_clean = ifelse(p.value < 0.001, "<0.001", as.character(round(p.value, 4))),
+    Significance = case_when(
+      p.value < 0.001 ~ "***",
+      p.value < 0.01  ~ "**",
+      p.value < 0.05  ~ "*",
+      TRUE            ~ ""
+    ),
+    Estimate_Star = paste0(round(estimate, 4), Significance),
+    Variables = case_when(
+      term == "(Intercept)"    ~ "Alpha (Intercept)",
+      term == "SIMD"           ~ "Beta 1: SIMD",
+      term == "DischargeRates" ~ "Beta 2: Discharge Rates",
+      grepl("AgeGroup", term)  ~ paste0("Beta 3: ", term),
+      grepl("Sex", term)       ~ paste0("Beta 4: ", term),
+      TRUE                     ~ term
+    )
+  ) %>%
+  select(
+    Variables, 
+    `Coefficients (β)` = Estimate_Star, 
+    `Std. Error` = std.error, 
+    `t-value` = statistic, 
+    `p-value` = p_value_clean
+  )
+error_info <- summary(model_full)$sigma
+gt_table <- gt(model_table) %>%
+  tab_header(
+    title = md("**Regression Results**"),
+    subtitle = "Dependent Variable: Patient Rates"
+  ) %>%
+  fmt_number(columns = c(`Std. Error`, `t-value`), decimals = 4) %>%
+  tab_source_note(
+    source_note = md(paste0("**Note:** * p<0.05, ** p<0.01, *** p<0.001. Residual Std. Error (Error Term) = ", round(error_info, 4), " on ", df.residual(model_full), " degrees of freedom."))
+  ) %>%
+  tab_options(table.font.size = "16px", table.width = pct(100))
+gt_table
+```
+
+4.Analysis:
+
+
+
 5.Model Checking：
-*残差图
+
+*残差图：
+
+
+```{r}
+
+```
+
+
 *算R方
-6.Reduced Model:
+
+
+
+6.conclusion(结合p-value 残差图 adjusted R方看模型的表现)：
+
+
+7.Reduced Model:
 *
 *Correlation表格+error term+p-value+model checking
 
